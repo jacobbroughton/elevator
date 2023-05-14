@@ -1,0 +1,61 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+#root {
+  padding: 10px;
+  height: 100%;
+}
+
+
+.building {
+  background-color: lightgrey;
+  border-radius: 3px;
+  max-width: 400px;
+  margin: 0 auto;
+  border-radius: 5px 5px 0 0;
+  height: 100%;
+}
+
+.building > .floor {
+  display: flex;
+  justify-content: space-between;
+  border-top: 1px solid grey;
+  padding: 5px;
+}
+
+.building > .floor:first-child {
+  border-top: 0;
+}
+
+.building > #floor-1 {
+  background-color: #aaa;
+}
+
+.building > .floor > .elevator {
+  background-color: teal;
+  width: 30px;
+}
+
+.building > .floor > .elevator.current-floor {
+  background-color: crimson;
+}
+
+.building > .floor > .controls {
+  display: flex;
+  gap: 5px;
+}
+
+.building > .floor > .controls > button {
+  border: 1px solid black;
+  border-radius: 3px;
+  padding: 0 2px;
+  cursor: pointer;
+}
+
+.building > .floor > .controls > button.toggled {
+  background-color: black;
+  color: white;
+}
