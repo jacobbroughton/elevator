@@ -15,19 +15,42 @@ building.setAttribute("class", "building")
 const floorLevelCount = 25;
 let floorOfElevator = 1
 let queue = []
+let toggledAlgorithm = "First-In-First-Out"
+let previousAlgorithm = "First-In-First-Out"
 
 const queueDisplay = document.createElement("div")
 queueDisplay.setAttribute("class", 'queue-display')
 queueDisplay.textContent = JSON.stringify(queue)
 
 const algorithmToggles = document.createElement("div")
+algorithmToggles.setAttribute("class", "algorithm-toggles")
 
 const firstInFirstOutButton = document.createElement("button")
-firstInFirstOutButton.textContent = "First-In-First-Out"
-algorithmToggles.append(firstInFirstOutButton)
-
 const sameDirectionButton = document.createElement("button")
+
+firstInFirstOutButton.textContent = "First-In-First-Out"
 sameDirectionButton.textContent = "Same Direction"
+
+firstInFirstOutButton.setAttribute("class", 'toggled')
+
+firstInFirstOutButton.addEventListener('click', () => {
+  if (toggledAlgorithm !== 'First-In-First-Out') {
+    previousAlgorithm = "Same Direction"
+    toggledAlgorithm = "First-In-First-Out"
+    firstInFirstOutButton.classList.add('toggled')
+    sameDirectionButton.classList.remove('toggled')
+  }
+})
+sameDirectionButton.addEventListener('click', () => {
+  if (toggledAlgorithm !== 'Same Direction') {
+    previousAlgorithm = "First-In-First-Out"
+    toggledAlgorithm = "Same Direction"
+    sameDirectionButton.classList.add('toggled')
+    firstInFirstOutButton.classList.remove('toggled')
+  }
+})
+
+algorithmToggles.append(firstInFirstOutButton)
 algorithmToggles.append(sameDirectionButton)
 
 root.append(algorithmToggles)
@@ -87,29 +110,60 @@ building.append(queueDisplay)
 function checkQueue() {
 
   const currentQueueItem = queue[0]
+  let previousFloor = null;
+  let currentFloor = null;
 
   if (currentQueueItem?.floor === floorOfElevator) {
     queue.shift()
   }
 
-  if (currentQueueItem && currentQueueItem.floor !== floorOfElevator) {
-    let previousFloor = null;
-    let currentFloor = null;
+  if (previousAlgorithm !== toggledAlgorithm) {
+    previousAlgorithm = toggledAlgorithm
+    previousFloor = document.querySelectorAll(".elevator.current-floor")[0]
+    previousFloor.classList.remove('current-floor')
 
-    if (currentQueueItem.floor > floorOfElevator) {
-      floorOfElevator += 1;
-      previousFloor = document.getElementById(`floor-${floorOfElevator - 1}`)
-    } else {
-      floorOfElevator -= 1
-      previousFloor = document.getElementById(`floor-${floorOfElevator + 1}`)
+    currentFloor = document.getElementById('floor-1')
+    console.log(currentFloor)
+    const currentFloorElevator = currentFloor.querySelector('.elevator')
+    if (!currentFloor.classList.contains('current-floor')) {
+      currentFloorElevator.classList.add('current-floor')
     }
 
-    currentFloor = document.getElementById(`floor-${floorOfElevator}`)
-    previousFloor.querySelector(".elevator").classList.remove("current-floor")
-    currentFloor.querySelector(".elevator").classList.add("current-floor")
+    queue.forEach(queueItem => {
+      const floorElement = document.getElementById(`floor-${queueItem.floor}`)
+      console.log(floorElement)
+      const controlsElement = floorElement.querySelector(".controls")
+      const toggledButtonElement = controlsElement.querySelector(".toggled")
+      toggledButtonElement?.classList.remove("toggled")
+    })
+    queueDisplay.textContent = ""
+    floorOfElevator = 1
+    queue = []
+    console.log("Hello")
+    return
+  }
 
-    const selectedButtonOfPreviousFloor = previousFloor.querySelector('button.toggled')
-    selectedButtonOfPreviousFloor.classList.remove("toggled")
+  if (currentQueueItem) {
+
+    if (toggledAlgorithm === "First-In-First-Out") {
+      if (currentQueueItem.floor > floorOfElevator) {
+        floorOfElevator += 1;
+        previousFloor = document.getElementById(`floor-${floorOfElevator - 1}`)
+      } else if (currentQueueItem.floor < floorOfElevator) {
+        floorOfElevator -= 1
+        previousFloor = document.getElementById(`floor-${floorOfElevator + 1}`)
+      }
+    } else if (toggledAlgorithm === "Same Direction") { }
+
+
+
+    currentFloor = document.getElementById(`floor-${floorOfElevator}`)
+    previousFloor?.querySelector(".elevator").classList.remove("current-floor")
+    currentFloor.querySelector(".elevator").classList.add("current-floor")
+    queueDisplay.textContent = JSON.stringify(queue)
+
+    const selectedButtonOfPreviousFloor = previousFloor?.querySelector('button.toggled')
+    selectedButtonOfPreviousFloor?.classList.remove("toggled")
   }
 
 }
