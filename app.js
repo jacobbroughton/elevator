@@ -20,6 +20,19 @@ const queueDisplay = document.createElement("div")
 queueDisplay.setAttribute("class", 'queue-display')
 queueDisplay.textContent = JSON.stringify(queue)
 
+const algorithmToggles = document.createElement("div")
+
+const firstInFirstOutButton = document.createElement("button")
+firstInFirstOutButton.textContent = "First-In-First-Out"
+algorithmToggles.append(firstInFirstOutButton)
+
+const sameDirectionButton = document.createElement("button")
+sameDirectionButton.textContent = "Same Direction"
+algorithmToggles.append(sameDirectionButton)
+
+root.append(algorithmToggles)
+
+
 for (let i = floorLevelCount; i > 0; i--) {
   const floor = document.createElement("div")
   floor.setAttribute("class", `floor`)
@@ -83,23 +96,22 @@ function checkQueue() {
     let previousFloor = null;
     let currentFloor = null;
 
-    // TODO - Figure out how to make it dependent on if the floor is over or under the current floor
-    if (currentQueueItem.direction === 'up') {
+    if (currentQueueItem.floor > floorOfElevator) {
       floorOfElevator += 1;
-
       previousFloor = document.getElementById(`floor-${floorOfElevator - 1}`)
-      currentFloor = document.getElementById(`floor-${floorOfElevator}`)
-
-    } else if (currentQueueItem.direction === 'down') {
-      floorOfElevator -= 1;
-
+    } else {
+      floorOfElevator -= 1
       previousFloor = document.getElementById(`floor-${floorOfElevator + 1}`)
-      currentFloor = document.getElementById(`floor-${floorOfElevator}`)
     }
+
+    currentFloor = document.getElementById(`floor-${floorOfElevator}`)
     previousFloor.querySelector(".elevator").classList.remove("current-floor")
     currentFloor.querySelector(".elevator").classList.add("current-floor")
+
+    const selectedButtonOfPreviousFloor = previousFloor.querySelector('button.toggled')
+    selectedButtonOfPreviousFloor.classList.remove("toggled")
   }
 
 }
 
-setInterval(checkQueue, 100)
+setInterval(checkQueue, 500)
