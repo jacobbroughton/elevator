@@ -139,7 +139,6 @@ function checkQueue() {
     queueDisplay.textContent = ""
     floorOfElevator = 1
     queue = []
-    console.log("Hello")
     return
   }
 
@@ -155,17 +154,21 @@ function checkQueue() {
       }
     } else if (toggledAlgorithm === "Same Direction") { }
 
-
+    // TODO - Get same direction algo working
+    // TODO - Make it so buttons only lose their toggled class when it is the current queue item
 
     currentFloor = document.getElementById(`floor-${floorOfElevator}`)
     previousFloor?.querySelector(".elevator").classList.remove("current-floor")
     currentFloor.querySelector(".elevator").classList.add("current-floor")
     queueDisplay.textContent = JSON.stringify(queue)
 
-    const selectedButtonOfPreviousFloor = previousFloor?.querySelector('button.toggled')
-    selectedButtonOfPreviousFloor?.classList.remove("toggled")
+    if (currentQueueItem.floor === floorOfElevator) {
+      const floorOfLastQueueItem = document.getElementById(`floor-${currentQueueItem.floor}`)
+      const controlsOfLastQueueItem = floorOfLastQueueItem.querySelector(".controls")
+      const selectedButtonOfLastQueueItem = controlsOfLastQueueItem.querySelector('button.toggled')
+      selectedButtonOfLastQueueItem.classList.remove("toggled")
+    }
   }
-
 }
 
 setInterval(checkQueue, 500)
