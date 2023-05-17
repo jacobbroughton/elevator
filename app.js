@@ -168,6 +168,8 @@ function checkQueue() {
       const selectedButtonOfLastQueueItem = controlsOfLastQueueItem.querySelector('button.toggled')
       selectedButtonOfLastQueueItem.classList.remove("toggled")
     }
+  } else if (floorOfElevator !== 1) {
+    queue.push({floor: 1, direction: "down"})
   }
 }
 
