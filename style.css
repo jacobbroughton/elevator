@@ -41,7 +41,9 @@
   max-width: 400px;
   margin: 0 auto;
   border-radius: 5px 5px 0 0;
-  height: 100%;
+  /* height: 100%; */
+  position: fixed;
+  bottom: 0;
 }
 
 .building > .floor {

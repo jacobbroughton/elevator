@@ -5,6 +5,9 @@
 // If a person clicks down, and the elevator is going up, the elevator will go up and drop the person off before stopping for the person going down (and vice versa)
 // Elevator goes from the first to last in the queue
 
+const array = [1, 2, 3]
+array.push(...[4, 5, 6])
+console.log(array)
 const root = document.createElement("div")
 root.setAttribute("id", 'root')
 document.body.append(root)
@@ -15,46 +18,11 @@ building.setAttribute("class", "building")
 const floorLevelCount = 25;
 let floorOfElevator = 1
 let queue = []
-let toggledAlgorithm = "First-In-First-Out"
-let previousAlgorithm = "First-In-First-Out"
+
 
 const queueDisplay = document.createElement("div")
 queueDisplay.setAttribute("class", 'queue-display')
 queueDisplay.textContent = JSON.stringify(queue)
-
-const algorithmToggles = document.createElement("div")
-algorithmToggles.setAttribute("class", "algorithm-toggles")
-
-const firstInFirstOutButton = document.createElement("button")
-const sameDirectionButton = document.createElement("button")
-
-firstInFirstOutButton.textContent = "First-In-First-Out"
-sameDirectionButton.textContent = "Same Direction"
-
-firstInFirstOutButton.setAttribute("class", 'toggled')
-
-firstInFirstOutButton.addEventListener('click', () => {
-  if (toggledAlgorithm !== 'First-In-First-Out') {
-    previousAlgorithm = "Same Direction"
-    toggledAlgorithm = "First-In-First-Out"
-    firstInFirstOutButton.classList.add('toggled')
-    sameDirectionButton.classList.remove('toggled')
-  }
-})
-sameDirectionButton.addEventListener('click', () => {
-  if (toggledAlgorithm !== 'Same Direction') {
-    previousAlgorithm = "First-In-First-Out"
-    toggledAlgorithm = "Same Direction"
-    sameDirectionButton.classList.add('toggled')
-    firstInFirstOutButton.classList.remove('toggled')
-  }
-})
-
-algorithmToggles.append(firstInFirstOutButton)
-algorithmToggles.append(sameDirectionButton)
-
-root.append(algorithmToggles)
-
 
 for (let i = floorLevelCount; i > 0; i--) {
   const floor = document.createElement("div")
@@ -77,100 +45,111 @@ for (let i = floorLevelCount; i > 0; i--) {
   const upButton = document.createElement("button")
   upButton.setAttribute("class", "up")
   upButton.textContent = "Up"
-  upButton.addEventListener("click", () => {
-    if (!queue.find(queueItem => queueItem.floor === i)) {
-      queue.push({ floor: i, direction: 'up' })
-      upButton.classList.add("toggled")
+  upButton.addEventListener("click", (e) => handleDirectionButtonClick(e, 'up'))
 
-    }
-    queueDisplay.textContent = JSON.stringify(queue)
-
-  })
   controls.append(upButton)
 
   const downButton = document.createElement("button")
   downButton.setAttribute("class", "down")
   downButton.textContent = "Down"
-  downButton.addEventListener("click", () => {
-    if (!queue.find(queueItem => queueItem.floor === i)) {
-      queue.push({ floor: i, direction: 'down' })
-      downButton.classList.add("toggled")
-    }
-    queueDisplay.textContent = JSON.stringify(queue)
-  })
+  downButton.addEventListener("click", (e) => handleDirectionButtonClick(e, 'down'))
   controls.append(downButton)
 
   building.append(floor)
-}
 
+  function handleDirectionButtonClick(e, direction) {
+    if (!queue.find(queueItem => queueItem.floor === i)) {
+      queue.push({ floor: i, direction })
+      if (direction === 'up') {
+        upButton.classList.add("toggled")
+      } else {
+        downButton.classList.add('toggled')
+      }
+
+    }
+    queueDisplay.textContent = JSON.stringify(queue)
+  }
+}
 
 root.append(building)
 building.append(queueDisplay)
 
+let isPaused = false
+
 function checkQueue() {
 
-  const currentQueueItem = queue[0]
+
+  const currentQueueItem = queue[0] || null
   let previousFloor = null;
   let currentFloor = null;
 
   if (currentQueueItem?.floor === floorOfElevator) {
     queue.shift()
+    console.log("Right here boiiio", queue)
+    return;
   }
 
-  if (previousAlgorithm !== toggledAlgorithm) {
-    previousAlgorithm = toggledAlgorithm
-    previousFloor = document.querySelectorAll(".elevator.current-floor")[0]
-    previousFloor.classList.remove('current-floor')
+  // ^ Update Queue Window
+  queueDisplay.textContent = JSON.stringify(queue)
 
-    currentFloor = document.getElementById('floor-1')
-    console.log(currentFloor)
-    const currentFloorElevator = currentFloor.querySelector('.elevator')
-    if (!currentFloor.classList.contains('current-floor')) {
-      currentFloorElevator.classList.add('current-floor')
-    }
-
-    queue.forEach(queueItem => {
-      const floorElement = document.getElementById(`floor-${queueItem.floor}`)
-      console.log(floorElement)
-      const controlsElement = floorElement.querySelector(".controls")
-      const toggledButtonElement = controlsElement.querySelector(".toggled")
-      toggledButtonElement?.classList.remove("toggled")
-    })
-    queueDisplay.textContent = ""
-    floorOfElevator = 1
-    queue = []
-    return
-  }
+  if (isPaused) return
 
   if (currentQueueItem) {
+    // ^ Increment / Decrement Elevator
+    if (currentQueueItem.floor > floorOfElevator) {
+      floorOfElevator += 1;
+      previousFloor = document.getElementById(`floor-${floorOfElevator - 1}`)
+    } else if (currentQueueItem.floor < floorOfElevator) {
+      floorOfElevator -= 1
+      previousFloor = document.getElementById(`floor-${floorOfElevator + 1}`)
+    } else {
+      console.log("reached this")
+    }
 
-    if (toggledAlgorithm === "First-In-First-Out") {
-      if (currentQueueItem.floor > floorOfElevator) {
-        floorOfElevator += 1;
-        previousFloor = document.getElementById(`floor-${floorOfElevator - 1}`)
-      } else if (currentQueueItem.floor < floorOfElevator) {
-        floorOfElevator -= 1
-        previousFloor = document.getElementById(`floor-${floorOfElevator + 1}`)
-      }
-    } else if (toggledAlgorithm === "Same Direction") { }
-
-    // TODO - Get same direction algo working
-    // TODO - Make it so buttons only lose their toggled class when it is the current queue item
-
+    // ^ Show / Hide Red Elevator
     currentFloor = document.getElementById(`floor-${floorOfElevator}`)
     previousFloor?.querySelector(".elevator").classList.remove("current-floor")
     currentFloor.querySelector(".elevator").classList.add("current-floor")
-    queueDisplay.textContent = JSON.stringify(queue)
 
     if (currentQueueItem.floor === floorOfElevator) {
+      let floorChosen = false
+      isPaused = true
       const floorOfLastQueueItem = document.getElementById(`floor-${currentQueueItem.floor}`)
       const controlsOfLastQueueItem = floorOfLastQueueItem.querySelector(".controls")
       const selectedButtonOfLastQueueItem = controlsOfLastQueueItem.querySelector('button.toggled')
-      selectedButtonOfLastQueueItem.classList.remove("toggled")
+      selectedButtonOfLastQueueItem?.classList.remove("toggled")
+      const currentFloorControls = currentFloor.querySelector(".controls")
+      currentFloorControls.style.display = 'none'
+
+      const floorSelectorControls = document.createElement('div')
+      for (let i = 0; i < floorLevelCount; i++) {
+        const floorButton = document.createElement('button')
+        floorButton.textContent = i + 1
+        floorButton.addEventListener("click", (e) => {
+          queue.push({ floor: i + 1, direction: currentQueueItem.direction })
+          isPaused = false
+          floorChosen = true
+          currentFloorControls.style.display = 'flex'
+          floorSelectorControls.style.display = 'none'
+
+        })
+        floorSelectorControls.append(floorButton)
+        
+        setTimeout(() => {
+          if (floorChosen === false) {
+            isPaused = false
+            currentFloorControls.style.display = 'flex'
+            floorSelectorControls.style.display = 'none'
+          }
+        }, 7500)
+      }
+      currentFloor.append(floorSelectorControls)
     }
   } else if (floorOfElevator !== 1) {
-    queue.push({floor: 1, direction: "down"})
+    queue.push({ floor: 1, direction: "down" })
   }
+  console.clear()
+  console.log(currentQueueItem, floorOfElevator)
 }
 
 setInterval(checkQueue, 500)
